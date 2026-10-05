@@ -12,13 +12,15 @@ I built this to learn enterprise IT infrastructure hands-on rather than just rea
 flowchart TD
     A[Internet / Physical Network] --> B[vmbr0 - External Bridge]
     B --> C[pfSense - WAN Interface]
-    C --> D[pfSense - LAN Interface]
+    C --> D[pfSense - LAN Interface<br/>10.10.10.1]
     D --> E[vmbr1 - Internal Isolated LAN<br/>10.10.10.0/24]
-    E --> F[DC01<br/>10.10.10.10<br/>AD DS + DNS]
+    E --> F[Domain Controller<br/>WIN-0L6O6TK3UHE<br/>10.10.10.10<br/>AD DS + DNS]
     E --> G[FS01<br/>10.10.10.20<br/>File Server]
-    E --> H[WIN11<br/>Domain Client]
+    E --> H[WIN11<br/>10.10.10.100 DHCP<br/>Domain Client]
+    E --> I[osTicket<br/>10.10.10.30<br/>Help desk LXC]
     F -.AD Auth + DNS.-> G
     F -.AD Auth + DNS.-> H
+    F -.DNS.-> I
 ```
 
 **Host:** Proxmox VE on a single-NIC laptop, with all network segmentation handled virtually through Linux bridges — `vmbr0` (external-facing) and `vmbr1` (isolated internal LAN), with pfSense routing/firewalling between them.
@@ -33,6 +35,7 @@ flowchart TD
 | File Server | Windows Server 2025 (member server) |
 | Client | Windows 11 |
 | Automation | PowerShell |
+| Help desk         | osTicket 1.18.3 on a Debian 12 LXC container (Apache, PHP 8.2, MariaDB 10.11) |
 
 ## What's built and working
 
@@ -42,6 +45,11 @@ flowchart TD
 - [x] File server (FS01) with SMB shares and NTFS permissions enforced through AD security groups, department-separated (Finance / IT / Public)
 - [x] PowerShell automation: a parameterized new-employee onboarding script (AD account creation + department group assignment)
 - [x] Three real troubleshooting incidents, diagnosed and resolved (see `/docs`)
+- [x] osTicket help desk in a hardened Debian container: localhost-only database, least-privilege DB account, installer removed, reachable at `helpdesk.lab.internal` through AD DNS
+
+## Constraints
+
+The whole lab runs on a 2014 ThinkPad T440s with 8 GB of RAM (12 GB max). When the host ran out of memory and started swapping heavily, I right-sized every VM and moved osTicket into a 512 MB container instead of a full VM.
 
 ## What's next
 
