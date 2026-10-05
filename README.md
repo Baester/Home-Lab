@@ -1,10 +1,6 @@
 # Enterprise IT Home Lab
 
-I built a small company network on one laptop to learn how IT infrastructure works by actually running it. It has a firewall, an Active Directory domain, a file server, a Windows client, a help desk system, and PowerShell automation.
-
-## Why I built it
-
-I wanted hands-on experience with the things a junior sysadmin works with every day. I set up everything here myself, and I broke and fixed a lot of it along the way. Those fixes are written up in the docs.
+A self-hosted lab that replicates the core infrastructure: a segmented network behind a firewall, an Active Directory domain, a departmental file server, a help desk system, and PowerShell automation for user onboarding. Whole environment runs on a single laptop.
 
 ## Architecture
 
@@ -23,9 +19,9 @@ flowchart TD
     F -.DNS.-> I
 ```
 
-**Host:** Proxmox VE on a laptop with one network port. I split the network with two virtual bridges. vmbr0 connects to my home network, and vmbr1 is the isolated lab network. pfSense sits between them as the firewall and router.
+**Host:** Proxmox VE on a laptop with one network interface. Two Linux bridges divide the network: vmbr0 connects to my home network, while vmbr1 hosts the isolated lab. pfSense routes and filters all traffic between them.
 
-## Tech stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -37,24 +33,24 @@ flowchart TD
 | Automation | PowerShell |
 | Help desk | osTicket 1.18.3 in a Debian 12 container (Apache, PHP 8.2, MariaDB 10.11) |
 
-## What's working
+## Completed Work
 
-- [x] Isolated lab network behind pfSense
-- [x] Active Directory domain (`lab.internal`) with OUs by role and security groups named with a `GG_` prefix
-- [x] Windows 11 client joined to the domain
-- [x] File server (FS01) with Finance, IT, and Public folders. Access is controlled by AD groups.
-- [x] PowerShell script that creates a new employee's account and adds them to their department group
-- [x] osTicket help desk at `helpdesk.lab.internal`. The database only accepts local connections, its account can only reach its own database, and the installer is removed.
-- [x] Write-ups of problems I ran into and how I fixed them (see Documentation)
+- [x] Isolated lab network, with pfSense handling routing, firewall rules, NAT, and DHCP
+- [x] Active Directory domain (`lab.internal`) organized into role-based OUs, with department security groups following a `GG_` naming convention
+- [x] Windows 11 client joined to the domain to validate logins and access from an end-user perspective
+- [x] Member file server (FS01) hosting Finance, IT, and Public shares, with NTFS permissions assigned through AD security groups
+- [x] PowerShell onboarding script that provisions a new user account and assigns department group membership
+- [x] osTicket help desk at `helpdesk.lab.internal`, hardened by restricting the database to local connections, limiting its service account to a single database, and removing the installer
+- [x] Troubleshooting write-ups documenting the root cause and resolution of each major issue
 
 ## Constraints
 
-The whole lab runs on a 2014 ThinkPad T440s with 8 GB of RAM, and 12 GB is the most it can take. When the host ran out of memory and started swapping, I cut each VM down to what it actually needs and put osTicket in a 512 MB container instead of a full VM.
+The lab hosted on a 2014 ThinkPad T440s with 8 GB of RAM, close to the hardware's 12 GB maximum. When the host exhausted its memory and began swapping heavily, I reduced each VM's allocation to match its workload and deployed osTicket in a 512 MB container in place of a full virtual machine.
 
-## Next
+## Roadmap
 
-- [ ] Group Policy to map department drives automatically
-- [ ] Wazuh and Kali Linux to practice detecting attacks
+- [ ] Group Policy for automatic department drive mapping
+- [ ] Wazuh SIEM with Kali Linux for attack simulation and detection
 
 ## Documentation
 
@@ -62,14 +58,14 @@ The whole lab runs on a 2014 ThinkPad T440s with 8 GB of RAM, and 12 GB is the m
 - [Active Directory design](docs/02-active-directory.md)
 - [File server and permissions](docs/03-file-server-permissions.md)
 - [Troubleshooting: Proxmox web interface outage](docs/04-troubleshooting-proxmox-outage.md)
-- [Troubleshooting: FS01 build problems](docs/05-troubleshooting-fs01-build.md)
+- [Troubleshooting: FS01 build issues](docs/05-troubleshooting-fs01-build.md)
 - [PowerShell automation](docs/06-powershell-automation.md)
-- [Troubleshooting: DNS problems](docs/07-troubleshooting-dns.md)
+- [Troubleshooting: DNS issues](docs/07-troubleshooting-dns.md)
 
 ## Scripts
 
-- [New-Employee.ps1](scripts/New-Employee.ps1): creates an AD user and adds them to their department group
+- [New-Employee.ps1](scripts/New-Employee.ps1): provisions an AD user account and assigns department group membership
 
 ## Screenshots
 
-Screenshots for each part are in the [screenshots folder](screenshots/), grouped by topic.
+Supporting screenshots for each component are organized by topic in the [screenshots folder](screenshots/).
