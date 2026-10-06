@@ -28,17 +28,16 @@ Keeping the share layer open and doing the real access control at the NTFS layer
 Access was tested directly from a domain-joined Windows 11 client, in both directions:
 
 - A Finance-group user: **allowed** into `\\FS01\Shares\Finance`, **denied** on `\\FS01\Shares\IT`, allowed into `Public`
-- An IT-group user: the reverse
 
 A denial is not a failure state here — it's the actual proof the permission boundary works, not just that it was configured. (One early testing hiccup, included for honesty: typing the UNC path into File Explorer's *search box* instead of the *address bar* just searches the local PC and returns nothing — an easy mistake worth knowing about before assuming a share is broken.)
 
 ## A real audit finding
 
-After initial setup, a PowerShell audit (`Get-Acl`) on all three folders turned up an inconsistency: `GG_FIN_USERS` and `GG_IT_USERS` were both present on **all three folders**, not just their own — meaning the department separation had silently drifted at some point after the manual click-through configuration.
+After initial setup, a PowerShell audit (`Get-Acl`) on all three folders turned up an inconsistency: `GG_FIN_USERS` and `GG_IT_USERS` were both present on **all three folders**, not just their own, meaning the department separation was lost at some point after the manual click-through configuration.
 
 **Root cause:** permissions had been edited on the parent `C:\Shares` folder at one point instead of the individual subfolders, so the department groups propagated to every child folder via inheritance before being frozen in as explicit entries when inheritance was later disabled on each subfolder. This was confirmed directly by opening the parent folder's own Properties → Security tab and finding `GG_FIN_USERS` listed there.
 
-**Fix:** each folder's permission list was corrected individually (removing the incorrect cross-department group, keeping only the intended one), then re-verified with `Get-Acl`, and the WIN11 access tests were re-run to confirm the corrected state actually enforced the intended separation.
+**Fix:** Each folder's permissions were corrected individually, removing the incorrect cross-department group and keeping only the intended one. Finance was re-verified with Get-Acl.
 
 This is included here deliberately — catching a real misconfiguration through auditing, rather than assuming a one-time manual setup stayed correct, is a more realistic and more valuable story than a clean first pass.
 
