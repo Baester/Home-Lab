@@ -1,6 +1,6 @@
 # Enterprise IT Home Lab
 
-A self-hosted lab that replicates the core infrastructure: a segmented network behind a firewall, an Active Directory domain, a departmental file server, a help desk system, and PowerShell automation for user onboarding. Whole environment runs on a single laptop.
+A self-hosted lab that replicates the core infrastructure: a segmented network behind a firewall, an Active Directory domain, a departmental file server, a help desk system, and PowerShell automation for user onboarding. The whole environment runs on a single Lenovo Thinkpad Laptop.
 
 ## Architecture
 
@@ -42,10 +42,11 @@ flowchart TD
 - [x] PowerShell onboarding script that provisions a new user account and assigns department group membership
 - [x] osTicket help desk at `helpdesk.lab.internal`, hardened by restricting the database to local connections, limiting its service account to a single database, and removing the installer
 - [x] Troubleshooting write-ups documenting the root cause and resolution of each major issue
+- [x] Self-hosted osTicket help desk (Debian 12 container, Apache/PHP/MariaDB) with an internal DNS record in Active Directory
 
 ## Constraints
 
-The lab hosted on a 2014 ThinkPad T440s with 8 GB of RAM, close to the hardware's 12 GB maximum. When the host exhausted its memory and began swapping heavily, I reduced each VM's allocation to match its workload and deployed osTicket in a 512 MB container in place of a full virtual machine.
+The lab hosted on a 2014 ThinkPad T440s with 8 GB of RAM, close to the hardware's 12 GB maximum. When the host exhausted its memory, I reduced each VM's allocation to match its workload and deployed osTicket in a 512 MB container instead of a virtual machine.
 
 ## Roadmap
 
